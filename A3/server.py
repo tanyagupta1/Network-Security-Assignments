@@ -106,7 +106,7 @@ if __name__ == "__main__":
 
   server_socket = socket.socket()
   host = '127.0.0.1'
-  port = 2004
+  port = 8765
   ThreadCount = 0
   try:
       server_socket.bind((host, port))

@@ -4,7 +4,7 @@ import socket
 
 
 if __name__ == "__main__":
-  
+
   e, d, n = client.RSA_keygen(29, 31)
   ca_e, ca_n = 5, 437
   client1 = client.Client((e, n), (d, n), (ca_e, ca_n), "ID1")
@@ -12,12 +12,10 @@ if __name__ == "__main__":
   # be open for communication
 
   s = socket.socket()        
-  print ("Socket successfully created")
   port = 12345               
   s.bind(('', port))        
-  print ("socket binded to %s" %(port))
   s.listen(5)    
-  print ("socket is listening")           
+  print ("Client 1 listening...")           
   
   while True:
     c, addr = s.accept()    

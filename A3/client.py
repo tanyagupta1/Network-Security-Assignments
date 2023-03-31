@@ -98,7 +98,7 @@ class Client:
   def request_ca(self, id):
     client_socket = socket.socket()
     host = '127.0.0.1'
-    port = 2004
+    port = 8765
     print('Waiting for connection response')
     try:
         client_socket.connect((host, port))
