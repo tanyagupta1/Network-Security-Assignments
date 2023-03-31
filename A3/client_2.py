@@ -84,19 +84,20 @@ class client:
       return 0
 
 
-  def send(self, msg, dst, ca):
+  def send(self, msg,dest_id):
     ''' encrypt message msg, by calling encrypt(), and send to client dst'''
 
-    if(self.checkexpiry(dst.ID)):
+    if(self.checkexpiry(dest_id)):
       print("get cert again!")
-      self.get_publickey_ofclient(dst.ID, ca)
-    encrypted_msg = RSA_encrypt_string(msg, self.map_pukeys[dst.ID])
+      self.get_publickey_ofclient(dest_id)
+    encrypted_msg = RSA_encrypt_string(msg, self.map_pukeys[dest_id])
     print("Client {s1} Sent {s2}".format( s1=self.ID, s2=encrypted_msg ))
-    dst.receive(encrypted_msg)
+    return encrypted_msg
 
   def receive(self, msg):
     decrypted_msg = RSA_decrypt_string(msg, self.privatekey)
     print("Client {s1} Received {s2}".format( s1=self.ID, s2=decrypted_msg ))
+    return decrypted_msg
 
   def getkey_from_certificate(self, cert):
     ''' Client extracts public key of the other client from its certificate.
@@ -138,10 +139,10 @@ print("Client 2's list: ",client2.map_pukeys)
 s = socket.socket()        
 port = 12345               
 s.connect(('127.0.0.1', port))
-print ("got from client 1", s.recv(1024).decode())
-s.send('ack1'.encode())
-print ("got from client 1", s.recv(1024).decode())
-s.send('ack2'.encode())
-print ("got from client 1", s.recv(1024).decode())
-s.send('ack3'.encode())
+print ("got from client 1", client2.receive(s.recv(1024).decode()))
+s.send(client2.send('ack1',"ID1").encode())
+print ("got from client 1", client2.receive(s.recv(1024).decode()))
+s.send(client2.send('ack2',"ID1").encode())
+print ("got from client 1", client2.receive(s.recv(1024).decode()))
+s.send(client2.send('ack3',"ID1").encode())
 s.close()    
