@@ -80,16 +80,15 @@ class CA:
   def add_publickey(self, id_client, key):
     self.map_pukeys[id_client] = key 
 
-def multi_threaded_client(connection):
-
-    connection.send(str.encode('Server is working:'))
-    data = connection.recv(2048)
-    m = data.decode('utf-8')
-    print("SERVER RECIVED ",m)
-    response = CA_obj.get_certificate(m)
-    print("sending response: ", response)
-    connection.sendall(str.encode(response))
-    connection.close()
+  def handle_client(self, connection):
+      connection.send(str.encode('Server is working:'))
+      data = connection.recv(2048)
+      m = data.decode('utf-8')
+      print("SERVER RECIVED ",m)
+      response = self.get_certificate(m)
+      print("sending response: ", response)
+      connection.sendall(str.encode(response))
+      connection.close()
 
 
 
@@ -119,7 +118,7 @@ if __name__ == "__main__":
   while True:
       Client, address = server_socket.accept()
       print('Connected to: ' + address[0] + ':' + str(address[1]))
-      start_new_thread(multi_threaded_client, (Client, ))
+      start_new_thread(CA_obj.handle_client, (Client, ))
       
       
   server_socket.close()

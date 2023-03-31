@@ -72,7 +72,7 @@ class Client:
     start = contents[2]
     dur = int(contents[3])
     date_object = datetime.strptime(start, "%d/%m/%Y %H:%M:%S")
-    new_date = date_object+relativedelta(years=5)
+    new_date = date_object+relativedelta(years=dur)
     cur_date = datetime.now()
     if(cur_date > new_date):
       return 1
