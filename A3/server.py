@@ -80,7 +80,17 @@ class CA:
   def add_publickey(self, id_client, key):
     self.map_pukeys[id_client] = key 
 
+def multi_threaded_client(connection):
 
+    connection.send(str.encode('Server is working:'))
+    data = connection.recv(2048)
+    m = data.decode('utf-8')
+    print("SERVER RECIVED ",m)
+    response = CA_obj.get_certificate(m)
+    print("sending response: ", response)
+    connection.sendall(str.encode(response))
+    connection.close()
+    
 
 
 ca_e, ca_d, ca_n = RSA_keygen(19, 23)
@@ -102,16 +112,7 @@ except socket.error as e:
     print(str(e))
 print('Socket is listening..')
 server_socket.listen(5)
-def multi_threaded_client(connection):
 
-    connection.send(str.encode('Server is working:'))
-    data = connection.recv(2048)
-    m = data.decode('utf-8')
-    print("SERVER RECIVED ",m)
-    response = CA_obj.get_certificate(m)
-    print("sending response: ", response)
-    connection.sendall(str.encode(response))
-    connection.close()
 
 while True:
     Client, address = server_socket.accept()

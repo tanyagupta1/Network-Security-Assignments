@@ -110,20 +110,19 @@ class client:
     return (key[0],key[1])
 
 def request_ca(id):
-    ClientMultiSocket = socket.socket()
+    client_socket = socket.socket()
     host = '127.0.0.1'
     port = 2004
     print('Waiting for connection response')
     try:
-        ClientMultiSocket.connect((host, port))
+        client_socket.connect((host, port))
     except socket.error as e:
         print(str(e))
-    res = ClientMultiSocket.recv(1024)
-    Input = id
-    ClientMultiSocket.send(str.encode(Input))
-    res = ClientMultiSocket.recv(1024).decode('utf-8')
+    res = client_socket.recv(1024)
+    client_socket.send(str.encode(id))
+    res = client_socket.recv(1024).decode('utf-8')
     print("got from server: ",res )
-    ClientMultiSocket.close()
+    client_socket.close()
     return res
 
 e, d, n = RSA_keygen(29, 31)
@@ -132,3 +131,26 @@ client1 = client((e, n), (d, n), (ca_e, ca_n), "ID1")
 client1.get_publickey_ofclient("ID2")
 
 print("Client 1's list: ",client1.map_pukeys)
+
+# be open for communication
+
+
+s = socket.socket()        
+print ("Socket successfully created")
+port = 12345               
+s.bind(('', port))        
+print ("socket binded to %s" %(port))
+s.listen(5)    
+print ("socket is listening")           
+ 
+while True:
+  c, addr = s.accept()    
+  print ('Got connection from', addr )
+  c.send('hello1'.encode())
+  print("got from client 2 ",c.recv(1024).decode())
+  c.send("hello2".encode())
+  print("got from client 2 ",c.recv(1024).decode())
+  c.send("hello3".encode())
+  print("got from client 2 ",c.recv(1024).decode())
+  c.close()
+  break
