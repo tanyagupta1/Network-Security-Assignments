@@ -107,7 +107,7 @@ class Client:
     res = client_socket.recv(1024)
     client_socket.send(str.encode(id))
     res = client_socket.recv(1024).decode('utf-8')
-    print("got from server: ",res )
+    # print("got from server: ",res )
     client_socket.close()
     return res
 
@@ -121,7 +121,6 @@ class Client:
     key = key.split(',')
     key[0]=int(key[0][1:])
     key[1]=int(key[1][:-1])
-    print("key is ",(key[0],key[1]))
     return (key[0],key[1])
 
 

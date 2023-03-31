@@ -93,31 +93,33 @@ def multi_threaded_client(connection):
 
 
 
-ca_e, ca_d, ca_n = RSA_keygen(19, 23)
-CA_obj = CA((ca_e, ca_n), (ca_d, ca_n)) # keys were self created. We chose p,q ensuring n > 255
-e1, n1 = 11, 899
-CA_obj.add_publickey("ID1", (e1, n1))
-e2, n2 = 7, 1517
-CA_obj.add_publickey("ID2", (e2, n2))
+if __name__ == "__main__":
+
+  ca_e, ca_d, ca_n = RSA_keygen(19, 23)
+  CA_obj = CA((ca_e, ca_n), (ca_d, ca_n)) # keys were self created. We chose p,q ensuring n > 255
+  e1, n1 = 11, 899
+  CA_obj.add_publickey("ID1", (e1, n1))
+  e2, n2 = 7, 1517
+  CA_obj.add_publickey("ID2", (e2, n2))
 
 
 
-server_socket = socket.socket()
-host = '127.0.0.1'
-port = 2004
-ThreadCount = 0
-try:
-    server_socket.bind((host, port))
-except socket.error as e:
-    print(str(e))
-print('Socket is listening..')
-server_socket.listen(5)
+  server_socket = socket.socket()
+  host = '127.0.0.1'
+  port = 2004
+  ThreadCount = 0
+  try:
+      server_socket.bind((host, port))
+  except socket.error as e:
+      print(str(e))
+  print('Socket is listening..')
+  server_socket.listen(5)
 
 
-while True:
-    Client, address = server_socket.accept()
-    print('Connected to: ' + address[0] + ':' + str(address[1]))
-    start_new_thread(multi_threaded_client, (Client, ))
-    
-    
-server_socket.close()
+  while True:
+      Client, address = server_socket.accept()
+      print('Connected to: ' + address[0] + ':' + str(address[1]))
+      start_new_thread(multi_threaded_client, (Client, ))
+      
+      
+  server_socket.close()
