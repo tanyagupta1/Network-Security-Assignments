@@ -4,7 +4,7 @@ from _thread import *
 
 from math import gcd
 import itertools
-import datetime
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 
@@ -66,14 +66,14 @@ class CA:
     # (IDA, PUA, TA, DURA, IDCA)
     # DURA is in years
     PUA = self.map_pukeys[client]
-    TA = str(datetime.date.today())
+    TA = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     # TA = str(datetime.date(1970,1,1)) 
     DURA = 5
     cert_contents = [client, PUA,TA,DURA, self.id]
     msg=""
     for c in cert_contents:
-      msg+=":"+str(c)
-    msg=msg[1:]
+      msg+="::"+str(c)
+    msg=msg[2:]
     enc_msg=RSA_encrypt_string(str(msg),self.privatekey)
     return enc_msg
 
@@ -97,7 +97,7 @@ ca_e, ca_d, ca_n = RSA_keygen(19, 23)
 CA_obj = CA((ca_e, ca_n), (ca_d, ca_n)) # keys were self created. We chose p,q ensuring n > 255
 e1, n1 = 11, 899
 CA_obj.add_publickey("ID1", (e1, n1))
-e2, n2 = 7, 517
+e2, n2 = 7, 1517
 CA_obj.add_publickey("ID2", (e2, n2))
 
 

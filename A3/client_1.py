@@ -9,7 +9,6 @@ client1.get_publickey_ofclient("ID2")
 
 # be open for communication
 
-
 s = socket.socket()        
 print ("Socket successfully created")
 port = 12345               
@@ -20,12 +19,12 @@ print ("socket is listening")
  
 while True:
   c, addr = s.accept()    
-  print ('Got connection from', addr )
+  print ('Got connection from', addr)
   c.send(client1.send('hello1',"ID2").encode())
-  print("got from client 2 ",client1.receive(c.recv(1024).decode()))
+  client1.receive(c.recv(1024).decode())
   c.send(client1.send('hello2',"ID2").encode())
-  print("got from client 2 ",client1.receive(c.recv(1024).decode()))
+  client1.receive(c.recv(1024).decode())
   c.send(client1.send('hello3',"ID2").encode())
-  print("got from client 2 ",client1.receive(c.recv(1024).decode()))
+  client1.receive(c.recv(1024).decode())
   c.close()
   break

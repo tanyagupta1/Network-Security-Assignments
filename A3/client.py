@@ -1,6 +1,6 @@
 from math import gcd
 import itertools
-import datetime
+from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import socket
 
@@ -68,12 +68,12 @@ class Client:
 
   def checkexpiry(self, ID):
     decrypted_msg = RSA_decrypt_string(self.map_certificates[ID], self.publickey_ca)
-    contents=decrypted_msg.split(":")
+    contents=decrypted_msg.split("::")
     start = contents[2]
     dur = int(contents[3])
-    date_object = datetime.datetime.strptime(start, '%Y-%m-%d').date()
+    date_object = datetime.strptime(start, "%d/%m/%Y %H:%M:%S")
     new_date = date_object+relativedelta(years=5)
-    cur_date = datetime.date.today()
+    cur_date = datetime.now()
     if(cur_date > new_date):
       return 1
     else:
@@ -116,11 +116,13 @@ class Client:
         Returns tuple of the form (e,n)
     '''
     decrypted_msg = RSA_decrypt_string(cert,self.publickey_ca)
-    contents=decrypted_msg.split(":")
+    contents=decrypted_msg.split("::")
     key = contents[1]
     key = key.split(',')
     key[0]=int(key[0][1:])
     key[1]=int(key[1][:-1])
+    print("key is ",(key[0],key[1]))
     return (key[0],key[1])
+
 
 
