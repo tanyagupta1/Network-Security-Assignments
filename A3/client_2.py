@@ -6,7 +6,6 @@ ca_e, ca_n = 5, 437
 client2 = client.Client((e, n), (d, n), (ca_e, ca_n), "ID1")
 client2.get_publickey_ofclient("ID1")
 
-print("Client 2's list: ",client2.map_pukeys, " ",client2.publickey_ca)
 
 #communicate
 

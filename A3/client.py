@@ -55,7 +55,6 @@ class Client:
     self.publickey = pu
     self.privatekey = pr
     self.publickey_ca = pu_CA
-    self.map_pukeys = {}
     self.map_certificates = {}
     self.ID = ID
 
@@ -65,7 +64,7 @@ class Client:
     x = self.request_ca(c)
     self.map_certificates[c] = x
     k = self.getkey_from_certificate(x)
-    self.map_pukeys[c] = k
+    print("Cert received ",RSA_decrypt_string(x,self.publickey_ca))
 
   def checkexpiry(self, ID):
     decrypted_msg = RSA_decrypt_string(self.map_certificates[ID], self.publickey_ca)
@@ -87,7 +86,7 @@ class Client:
     if(self.checkexpiry(dest_id)):
       print("get cert again!")
       self.get_publickey_ofclient(dest_id)
-    encrypted_msg = RSA_encrypt_string(msg, self.map_pukeys[dest_id])
+    encrypted_msg = RSA_encrypt_string(msg, self.getkey_from_certificate(self.map_certificates[dest_id]))
     print("Client {s1} Sent {s2}".format( s1=self.ID, s2=encrypted_msg ))
     return encrypted_msg
 
