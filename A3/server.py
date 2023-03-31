@@ -90,15 +90,15 @@ def multi_threaded_client(connection):
     print("sending response: ", response)
     connection.sendall(str.encode(response))
     connection.close()
-    
+
 
 
 ca_e, ca_d, ca_n = RSA_keygen(19, 23)
 CA_obj = CA((ca_e, ca_n), (ca_d, ca_n)) # keys were self created. We chose p,q ensuring n > 255
-e, d, n = RSA_keygen(29, 31)
-CA_obj.add_publickey("ID1", (e, n))
-e, d, n = RSA_keygen(37, 41)
-CA_obj.add_publickey("ID2", (e, n))
+e1, n1 = 11, 899
+CA_obj.add_publickey("ID1", (e1, n1))
+e2, n2 = 7, 517
+CA_obj.add_publickey("ID2", (e2, n2))
 
 
 
