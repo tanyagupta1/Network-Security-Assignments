@@ -1,5 +1,8 @@
 import socket
-import tqdm
+import rsa
+
+
+e, d, n = rsa.RSA_keygen(19, 23)
 
 server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 server.bind(('127.0.0.1',12345))
@@ -19,7 +22,11 @@ while (len(file_bytes)<file_size):
     data = client.recv(1024)
     file_bytes+=data
     print(len(file_bytes))
-   
+
+# print(file_bytes)
+file_bytes = rsa.RSA_decrypt_string(file_bytes.decode(),(d,n))
+
+# print(file_bytes)
 file.write(file_bytes)
 file.close()
 client.close()
