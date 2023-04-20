@@ -3,6 +3,7 @@ from rsa import *
 from _thread import *
 import time
 import hashlib
+import os
 
 def handle_client(connection):
     
@@ -69,6 +70,7 @@ def handle_client(connection):
     # send the final message to client
     encmsg_size = len(enc_msg)
     connection.sendall(str(encmsg_size).encode())
+    print("Ack recvd: ",connection.recv(1024).decode())
     print("Final message size:", encmsg_size)
     connection.sendall(enc_msg)
     
@@ -84,9 +86,9 @@ if __name__ == "__main__":
     # filling DB map
     
     DB = {}
-    DB[("Person1", "2019215")] = ("db\Person1_degree.pdf", "db\Person1_grades.pdf", (3, 3127))
-    DB[("Person2", "2019216")] = ("db\Person2_degree.pdf", "db\Person2_grades.pdf", (7, 4087))
-    DB[("Person3", "2019217")] = ("db\Person3_degree.pdf", "db\Person3_grades.pdf", (11, 5183))
+    DB[("Person1", "2019215")] = (os.path.join("db", "Person1_degree.pdf"), os.path.join("db", "Person1_grades.pdf"), (3, 3127))
+    DB[("Person2", "2019216")] = (os.path.join("db", "Person2_degree.pdf"), os.path.join("db", "Person2_grades.pdf"), (7, 4087))
+    DB[("Person3", "2019217")] = (os.path.join("db", "Person3_degree.pdf"), os.path.join("db", "Person3_grades.pdf"), (11, 5183))
 
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     host = '127.0.0.1'

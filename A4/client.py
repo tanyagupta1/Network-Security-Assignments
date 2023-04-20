@@ -53,6 +53,7 @@ def request( name, rollno, PR_user):
         return 
     
     encmsg_size = int(client.recv(1024).decode())
+    client.send(("Received len: "+str(encmsg_size)).encode())
     enc_msg = b""
 
     while (len(enc_msg)<encmsg_size):
