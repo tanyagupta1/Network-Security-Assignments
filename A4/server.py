@@ -4,6 +4,22 @@ from _thread import *
 import time
 import hashlib
 import os
+import ntplib
+import fitz
+
+def add_watermark(filename):
+    doc = fitz.open(filename)# new or existing PDF
+    page = doc[0]  # new or existing page via doc[n]
+    p = fitz.Point(50, 72)  # start point of 1st line
+
+    text = "IIIT DELHI ACADEMICS"
+    font = fitz.Font("helv")  # choose a font with small caps
+    tw = fitz.TextWriter(page.rect)
+    tw.append((250,450), text, font=font,fontsize =40, small_caps=True)
+    tw.write_text(page)
+    new_name=filename[0:-4]+"_stamped.pdf"
+    doc.save(new_name)
+    return new_name
 
 def handle_client(connection):
     
@@ -18,18 +34,15 @@ def handle_client(connection):
         return 
     connection.sendall("SUCCESS".encode())
 
-    # obtain the PDFs
+    # obtain the PDFs & add watermark to each
     degree , grade, PU_user = DB[(name,rollno)]
-    file = open(degree,"rb")
+    file = open(add_watermark(degree),"rb")
     PDF1 = file.read()
     file.close()
 
-    file = open(grade,"rb")
+    file = open(add_watermark(grade),"rb")
     PDF2 = file.read()
     file.close()
-
-    # add watermark to each
-
 
     # put date and time
 
