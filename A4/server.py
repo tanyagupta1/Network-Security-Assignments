@@ -4,18 +4,20 @@ from _thread import *
 import time
 import hashlib
 import os
-import ntplib
 import fitz
+import ntplib
+from datetime import datetime
+from time import ctime
 
-def add_watermark(filename):
+def add_watermark(filename,timestamp):
     doc = fitz.open(filename)# new or existing PDF
     page = doc[0]  # new or existing page via doc[n]
     p = fitz.Point(50, 72)  # start point of 1st line
 
-    text = "IIIT DELHI ACADEMICS"
+    text = "IIIT DELHI ACADEMICS: "+timestamp
     font = fitz.Font("helv")  # choose a font with small caps
     tw = fitz.TextWriter(page.rect)
-    tw.append((250,450), text, font=font,fontsize =40, small_caps=True)
+    tw.append((250,450), text, font=font,fontsize =20, small_caps=True)
     tw.write_text(page)
     new_name=filename[0:-4]+"_stamped.pdf"
     doc.save(new_name)
@@ -34,18 +36,20 @@ def handle_client(connection):
         return 
     connection.sendall("SUCCESS".encode())
 
+    # put date and time
+    ntpc=ntplib.NTPClient() 
+    curtime = ntpc.request('in.pool.ntp.org').tx_time
+    time_str = datetime.strptime(ctime(curtime),"%a %b %d %H:%M:%S %Y").strftime("%d/%m/%Y %H:%M:%S")
+
     # obtain the PDFs & add watermark to each
     degree , grade, PU_user = DB[(name,rollno)]
-    file = open(add_watermark(degree),"rb")
+    file = open(add_watermark(degree,time_str),"rb")
     PDF1 = file.read()
     file.close()
 
-    file = open(add_watermark(grade),"rb")
+    file = open(add_watermark(grade,time_str),"rb")
     PDF2 = file.read()
     file.close()
-
-    # put date and time
-
 
     # concatenate the two PDFs
     PDFs = PDF1 + PDF2
@@ -73,7 +77,7 @@ def handle_client(connection):
     print("size of encryptedhash1:", len(encryptedhash1))
     print("size of encryptedhash2:", len(encryptedhash2))
     print("\n\n")
-    msg = len(PDF1).to_bytes(4,'little')+len(PDF2).to_bytes(4,'little') + len(encryptedhash1).to_bytes(4,'little') + len(encryptedhash2).to_bytes(4,'little') + PDFs + encryptedhash1 + encryptedhash2
+    msg = len(PDF1).to_bytes(4,'little')+len(PDF2).to_bytes(4,'little') + len(encryptedhash1).to_bytes(4,'little') + len(encryptedhash2).to_bytes(4,'little') + PDFs + encryptedhash1 + encryptedhash2 +time_str.encode()
     
 
     # encrypt for confidentiality

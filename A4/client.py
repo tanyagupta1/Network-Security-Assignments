@@ -82,6 +82,10 @@ def request( name, rollno, PR_user):
     encryptedhash1 = msg[16+s1+s2:16+s1+s2+s3]
     encryptedhash2 = msg[16+s1+s2+s3:16+s1+s2+s3+s4]
 
+    curtime = msg[16+s1+s2+s3+s4:].decode()
+
+    print("TIME: ",curtime)
+
     # request certificate of Director from CA
     Cert_dir = request_ca("Director")
     PU_dir = getkey_from_certificate(Cert_dir)
