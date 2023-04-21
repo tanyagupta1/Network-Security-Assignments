@@ -85,8 +85,9 @@ def handle_client(connection,server_pk):
 
     # put date and time
     ntpc=ntplib.NTPClient() 
-    curtime = ntpc.request('in.pool.ntp.org').tx_time
-    time_str = datetime.strptime(ctime(curtime),"%a %b %d %H:%M:%S %Y").strftime("%d/%m/%Y %H:%M:%S")
+    curtime = ntpc.request('uk.pool.ntp.org').tx_time
+    
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(curtime))
 
     # obtain the PDFs & add watermark to each
     degree , grade = DB[(name,rollno)]
