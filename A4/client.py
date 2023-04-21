@@ -43,13 +43,15 @@ def request( name, rollno, PR_user):
     client.connect(("127.0.0.1",12345))
 
     # send name, rollno to the server
-    client.sendall((name + "," + rollno).encode())
+    request_msg = (name + "," + rollno)
+    request_msg_hash = request_msg+','+hashlib.sha256(request_msg.encode()).hexdigest()
+    client.sendall(request_msg_hash.encode())
     
 
     # receive the encrypted msg from server
     msg = client.recv(1024).decode()
     print("Received from Server:", msg)
-    if(msg == "NAME AND ROLLNO NOT FOUND"):
+    if((msg == "NAME AND ROLLNO NOT FOUND")or(msg=="INTEGRITY FAILURE")):
         return 
     
     encmsg_size = int(client.recv(1024).decode())

@@ -29,11 +29,16 @@ def handle_client(connection):
     msg = connection.recv(1024).decode()
     print("Received:", msg)
     print("\n\n")
-    name, rollno = msg.split(",")
+    name, rollno, hash_val = msg.split(",")
     if((name,rollno) not in DB):
         connection.sendall("NAME AND ROLLNO NOT FOUND".encode())
         connection.close()
         return 
+    #checking if the message hasn't been tampered with
+    if(hashlib.sha256((name+','+rollno).encode()).hexdigest()!=hash_val):
+        connection.sendall("INTEGRITY FAILURE".encode())
+        connection.close()
+        return
     connection.sendall("SUCCESS".encode())
 
     # put date and time
