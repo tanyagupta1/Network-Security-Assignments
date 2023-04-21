@@ -9,6 +9,42 @@ import ntplib
 from datetime import datetime
 from time import ctime
 
+
+def request_ca(id):
+    client_socket = socket.socket()
+    host = '127.0.0.1'
+    port = 8765
+    print('Waiting for connection response from CA')
+    try:
+        client_socket.connect((host, port))
+    except socket.error as e:
+        print(str(e))
+    res = client_socket.recv(1024)
+    print("Received from CA:", res.decode())
+
+    client_socket.send(str.encode(id))
+    res = client_socket.recv(1024).decode('utf-8')
+    # print("got from server: ",res )
+    client_socket.close()
+    return res
+
+
+def getkey_from_certificate(cert):
+    ''' Client extracts public key of the other client from its certificate.
+        Returns tuple of the form (e,n)
+    '''
+    decrypted_msg = RSA_decrypt_string(cert, publickey_ca)
+    print("Getting key from certificate:")
+    print(decrypted_msg)
+    
+    contents=decrypted_msg.split("::")
+    key = contents[1]
+    key = key.split(',')
+    key[0]=int(key[0][1:])
+    key[1]=int(key[1][:-1])
+    return (key[0],key[1])
+
+
 def add_watermark(filename,timestamp):
     doc = fitz.open(filename)# new or existing PDF
     page = doc[0]  # new or existing page via doc[n]
@@ -44,8 +80,8 @@ def handle_client(connection,server_pk):
     connection.sendall("SUCCESS".encode())
 
     #get PU of client
-    # Cert_client = request_ca(rollno)
-    # PU_client = getkey_from_certificate(Cert_client)
+    Cert_client = request_ca(rollno)
+    PU_client = getkey_from_certificate(Cert_client)
 
     # put date and time
     ntpc=ntplib.NTPClient() 
@@ -92,7 +128,8 @@ def handle_client(connection,server_pk):
     
 
     # encrypt for confidentiality
-    enc_msg = RSA_encrypt_bytes(msg, PU_user).encode()
+    print("HEEEEEEEEEEEE:", PU_user, PU_client)
+    enc_msg = RSA_encrypt_bytes(msg, PU_client).encode()
     
 
     # send the final message to client
@@ -129,11 +166,11 @@ if __name__ == "__main__":
     print('Socket is listening...')
     server_socket.listen(5)
 
-    # while True:
-    Client, address = server_socket.accept()
-    print('Connected to: ' + address[0] + ':' + str(address[1]))
-    start_new_thread(handle_client, (Client,server_pk, ))
-    time.sleep(10) 
+    while True:
+        Client, address = server_socket.accept()
+        print('Connected to: ' + address[0] + ':' + str(address[1]))
+        start_new_thread(handle_client, (Client,server_pk, ))
+        time.sleep(10) 
         
     
    
