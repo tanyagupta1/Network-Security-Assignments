@@ -38,14 +38,15 @@ def getkey_from_certificate(cert):
     return (key[0],key[1])
 
 
-def request( name, rollno, PR_user):
+def request( name, rollno, PR_user,publickey_ca,PU_server):
     client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     client.connect(("127.0.0.1",12345))
 
     # send name, rollno to the server
     request_msg = (name + "," + rollno)
     request_msg_hash = request_msg+','+hashlib.sha256(request_msg.encode()).hexdigest()
-    client.sendall(request_msg_hash.encode())
+    encrypted_msg = RSA_encrypt_string(request_msg_hash,PU_server)
+    client.sendall(encrypted_msg.encode())
     
 
     # receive the encrypted msg from server
@@ -139,8 +140,10 @@ if __name__ == "__main__":
     print(RSA_keygen(71, 73))
     print("\n\n")
 
+    Cert_server = request_ca("Server")
+    PU_server = getkey_from_certificate(Cert_server)
     # request("Person1", "2019215", (2011, 3127))
-    request("Person2", "2019216", (2263, 4087))
+    request("Person2", "2019216", (2263, 4087),publickey_ca,PU_server)
     # request("Person3", "2019217", (2291, 5183))
     
 

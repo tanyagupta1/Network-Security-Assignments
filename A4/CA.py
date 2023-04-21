@@ -67,6 +67,10 @@ if __name__ == "__main__":
   print("private key of Registrar ",(e, n))  #(5, 2021)
   CA_obj.add_publickey("Registrar", (d, n))
 
+  e, d, n = RSA_keygen(17, 47)
+  print("private key of server ",(e, n))  #(5, 2021)
+  CA_obj.add_publickey("Server", (d, n))
+
 
   server_socket = socket.socket()
   host = '127.0.0.1'
@@ -75,20 +79,19 @@ if __name__ == "__main__":
       server_socket.bind((host, port))
   except socket.error as e:
       print(str(e))
+      exit()
   print('Socket is listening...')
   server_socket.listen(5)
 
 
-  # while True:
-  Client, address = server_socket.accept()
-  print('Connected to: ' + address[0] + ':' + str(address[1]))
-  start_new_thread(CA_obj.handle_client, (Client, ))
-      
-  Client, address = server_socket.accept()
-  print('Connected to: ' + address[0] + ':' + str(address[1]))
-  start_new_thread(CA_obj.handle_client, (Client, ))
+  while True:
+    Client, address = server_socket.accept()
+    print('Connected to: ' + address[0] + ':' + str(address[1]))
+    start_new_thread(CA_obj.handle_client, (Client, ))
+        
+    Client, address = server_socket.accept()
+    print('Connected to: ' + address[0] + ':' + str(address[1]))
+    start_new_thread(CA_obj.handle_client, (Client, ))
 
 
-  time.sleep(20)
-  server_socket.close()
  

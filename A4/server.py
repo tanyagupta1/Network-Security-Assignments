@@ -23,10 +23,11 @@ def add_watermark(filename,timestamp):
     doc.save(new_name)
     return new_name
 
-def handle_client(connection):
+def handle_client(connection,server_pk):
     
     # verify that name and rollno are indeed present in DB
-    msg = connection.recv(1024).decode()
+    
+    msg = RSA_decrypt_string(connection.recv(1024).decode(), server_pk)
     print("Received:", msg)
     print("\n\n")
     name, rollno, hash_val = msg.split(",")
@@ -111,7 +112,7 @@ if __name__ == "__main__":
     DB[("Person1", "2019215")] = (os.path.join("db", "Person1_degree.pdf"), os.path.join("db", "Person1_grades.pdf"), (3, 3127))
     DB[("Person2", "2019216")] = (os.path.join("db", "Person2_degree.pdf"), os.path.join("db", "Person2_grades.pdf"), (7, 4087))
     DB[("Person3", "2019217")] = (os.path.join("db", "Person3_degree.pdf"), os.path.join("db", "Person3_grades.pdf"), (11, 5183))
-
+    server_pk = (3, 799)
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     host = '127.0.0.1'
     port = 12345
@@ -119,13 +120,14 @@ if __name__ == "__main__":
         server_socket.bind((host, port))
     except socket.error as e:
         print(str(e))
+        exit()
     print('Socket is listening...')
     server_socket.listen(5)
 
     # while True:
     Client, address = server_socket.accept()
     print('Connected to: ' + address[0] + ':' + str(address[1]))
-    start_new_thread(handle_client, (Client, ))
+    start_new_thread(handle_client, (Client,server_pk, ))
     time.sleep(10) 
         
     
