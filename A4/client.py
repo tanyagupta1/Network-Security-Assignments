@@ -59,7 +59,7 @@ def request( name, rollno, PR_user,publickey_ca,PU_server):
     
     encmsg_size = int.from_bytes(RSA_decrypt_bytes(encencmsg_size, PR_user), byteorder='little')
 
-    client.send(("Received len: "+str(encmsg_size)).encode())
+    client.send(RSA_encrypt_string(("Received len: "+str(encmsg_size)),PU_server).encode())
     enc_msg = b""
 
     while (len(enc_msg)<encmsg_size):

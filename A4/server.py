@@ -138,7 +138,7 @@ def handle_client(connection,server_pk):
     encencmsg_size = RSA_encrypt_bytes(encmsg_size.to_bytes(4,'little'), PU_client).encode()
 
     connection.sendall(encencmsg_size)
-    print("Ack recvd: ",connection.recv(1024).decode())
+    print("Ack recvd: ",RSA_decrypt_string(connection.recv(1024).decode(),server_pk))
     print("Final message size:", encmsg_size)
     connection.sendall(enc_msg)
     
