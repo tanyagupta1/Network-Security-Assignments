@@ -68,20 +68,20 @@ if __name__ == "__main__":
   CA_obj.add_publickey("Registrar", (d, n))
 
   e, d, n = RSA_keygen(17, 47)
-  print("private key of server ",(e, n))  #(5, 2021)
+  print("private key of server ",(e, n))
   CA_obj.add_publickey("Server", (d, n))
 
 
   e, d, n = RSA_keygen(53, 59)
-  print("private key of 2019215 ",(d, n))  #(5, 2021)
+  print("private key of 2019215 ",(d, n))  
   CA_obj.add_publickey("2019215", (e, n))
 
   e, d, n = RSA_keygen(61, 67)
-  print("private key of 2019216 ",(d, n))  #(5, 2021)
+  print("private key of 2019216 ",(d, n))  
   CA_obj.add_publickey("2019216", (e, n))
 
   e, d, n = RSA_keygen(71, 73)
-  print("private key of 2019217 ",(d, n))  #(5, 2021)
+  print("private key of 2019217 ",(d, n))  
   CA_obj.add_publickey("2019217", (e, n))
 
 
@@ -101,4 +101,3 @@ if __name__ == "__main__":
     Client, address = server_socket.accept()
     print('Connected to: ' + address[0] + ':' + str(address[1]))
     start_new_thread(CA_obj.handle_client, (Client, ))
- 

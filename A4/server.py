@@ -89,7 +89,7 @@ def handle_client(connection,server_pk):
     time_str = datetime.strptime(ctime(curtime),"%a %b %d %H:%M:%S %Y").strftime("%d/%m/%Y %H:%M:%S")
 
     # obtain the PDFs & add watermark to each
-    degree , grade, PU_user = DB[(name,rollno)]
+    degree , grade = DB[(name,rollno)]
     file = open(add_watermark(degree,time_str),"rb")
     PDF1 = file.read()
     file.close()
@@ -128,13 +128,15 @@ def handle_client(connection,server_pk):
     
 
     # encrypt for confidentiality
-    print("HEEEEEEEEEEEE:", PU_user, PU_client)
+    print("PU_client:",  PU_client)
     enc_msg = RSA_encrypt_bytes(msg, PU_client).encode()
     
 
     # send the final message to client
     encmsg_size = len(enc_msg)
-    connection.sendall(str(encmsg_size).encode())
+    encencmsg_size = RSA_encrypt_bytes(encmsg_size.to_bytes(4,'little'), PU_client).encode()
+
+    connection.sendall(encencmsg_size)
     print("Ack recvd: ",connection.recv(1024).decode())
     print("Final message size:", encmsg_size)
     connection.sendall(enc_msg)
@@ -151,9 +153,9 @@ if __name__ == "__main__":
     # filling DB map
     publickey_ca = (5, 437)
     DB = {}
-    DB[("Person1", "2019215")] = (os.path.join("db", "Person1_degree.pdf"), os.path.join("db", "Person1_grades.pdf"), (3, 3127))
-    DB[("Person2", "2019216")] = (os.path.join("db", "Person2_degree.pdf"), os.path.join("db", "Person2_grades.pdf"), (7, 4087))
-    DB[("Person3", "2019217")] = (os.path.join("db", "Person3_degree.pdf"), os.path.join("db", "Person3_grades.pdf"), (11, 5183))
+    DB[("Person1", "2019215")] = (os.path.join("db", "Person1_degree.pdf"), os.path.join("db", "Person1_grades.pdf"))
+    DB[("Person2", "2019216")] = (os.path.join("db", "Person2_degree.pdf"), os.path.join("db", "Person2_grades.pdf"))
+    DB[("Person3", "2019217")] = (os.path.join("db", "Person3_degree.pdf"), os.path.join("db", "Person3_grades.pdf"))
     server_pk = (3, 799)
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     host = '127.0.0.1'

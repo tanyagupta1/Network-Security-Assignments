@@ -55,7 +55,10 @@ def request( name, rollno, PR_user,publickey_ca,PU_server):
     if((msg == "NAME AND ROLLNO NOT FOUND")or(msg=="INTEGRITY FAILURE")):
         return 
     
-    encmsg_size = int(client.recv(1024).decode())
+    encencmsg_size = client.recv(1024).decode()
+    
+    encmsg_size = int.from_bytes(RSA_decrypt_bytes(encencmsg_size, PR_user), byteorder='little')
+
     client.send(("Received len: "+str(encmsg_size)).encode())
     enc_msg = b""
 
@@ -142,9 +145,9 @@ if __name__ == "__main__":
 
     Cert_server = request_ca("Server")
     PU_server = getkey_from_certificate(Cert_server)
-    request("Person1", "2019215", (2011, 3127),publickey_ca,PU_server)
+    # request("Person1", "2019215", (2011, 3127),publickey_ca,PU_server)
     # request("Person2", "2019216", (2263, 4087),publickey_ca,PU_server)
-    # request("Person3", "2019217", (2291, 5183),publickey_ca,PU_server)
+    request("Person3", "2019217", (2291, 5183),publickey_ca,PU_server)
     
 
    
