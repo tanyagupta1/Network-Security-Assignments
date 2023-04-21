@@ -26,21 +26,26 @@ def add_watermark(filename,timestamp):
 def handle_client(connection,server_pk):
     
     # verify that name and rollno are indeed present in DB
-    
     msg = RSA_decrypt_string(connection.recv(1024).decode(), server_pk)
     print("Received:", msg)
     print("\n\n")
+
     name, rollno, hash_val = msg.split(",")
     if((name,rollno) not in DB):
         connection.sendall("NAME AND ROLLNO NOT FOUND".encode())
         connection.close()
         return 
+    
     #checking if the message hasn't been tampered with
     if(hashlib.sha256((name+','+rollno).encode()).hexdigest()!=hash_val):
         connection.sendall("INTEGRITY FAILURE".encode())
         connection.close()
         return
     connection.sendall("SUCCESS".encode())
+
+    #get PU of client
+    # Cert_client = request_ca(rollno)
+    # PU_client = getkey_from_certificate(Cert_client)
 
     # put date and time
     ntpc=ntplib.NTPClient() 
@@ -107,7 +112,7 @@ def handle_client(connection,server_pk):
 if __name__ == "__main__":
     
     # filling DB map
-    
+    publickey_ca = (5, 437)
     DB = {}
     DB[("Person1", "2019215")] = (os.path.join("db", "Person1_degree.pdf"), os.path.join("db", "Person1_grades.pdf"), (3, 3127))
     DB[("Person2", "2019216")] = (os.path.join("db", "Person2_degree.pdf"), os.path.join("db", "Person2_grades.pdf"), (7, 4087))

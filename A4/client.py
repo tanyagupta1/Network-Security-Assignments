@@ -142,9 +142,9 @@ if __name__ == "__main__":
 
     Cert_server = request_ca("Server")
     PU_server = getkey_from_certificate(Cert_server)
-    # request("Person1", "2019215", (2011, 3127))
-    request("Person2", "2019216", (2263, 4087),publickey_ca,PU_server)
-    # request("Person3", "2019217", (2291, 5183))
+    # request("Person1", "2019215", (2011, 3127),publickey_ca,PU_server)
+    # request("Person2", "2019216", (2263, 4087),publickey_ca,PU_server)
+    request("Person3", "2019217", (2291, 5183),publickey_ca,PU_server)
     
 
    

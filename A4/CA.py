@@ -72,6 +72,19 @@ if __name__ == "__main__":
   CA_obj.add_publickey("Server", (d, n))
 
 
+  e, d, n = RSA_keygen(53, 59)
+  print("private key of 2019215 ",(d, n))  #(5, 2021)
+  CA_obj.add_publickey("2019215", (e, n))
+
+  e, d, n = RSA_keygen(61, 67)
+  print("private key of 2019216 ",(d, n))  #(5, 2021)
+  CA_obj.add_publickey("2019216", (e, n))
+
+  e, d, n = RSA_keygen(71, 73)
+  print("private key of 2019217 ",(d, n))  #(5, 2021)
+  CA_obj.add_publickey("2019217", (e, n))
+
+
   server_socket = socket.socket()
   host = '127.0.0.1'
   port = 8765
@@ -81,17 +94,11 @@ if __name__ == "__main__":
       print(str(e))
       exit()
   print('Socket is listening...')
-  server_socket.listen(5)
+  server_socket.listen(10)
 
 
   while True:
     Client, address = server_socket.accept()
     print('Connected to: ' + address[0] + ':' + str(address[1]))
     start_new_thread(CA_obj.handle_client, (Client, ))
-        
-    Client, address = server_socket.accept()
-    print('Connected to: ' + address[0] + ':' + str(address[1]))
-    start_new_thread(CA_obj.handle_client, (Client, ))
-
-
  
