@@ -3,6 +3,7 @@ import socket
 from rsa import *
 import hashlib
 
+
 def request_ca(id):
     client_socket = socket.socket()
     host = '127.0.0.1'
@@ -70,40 +71,36 @@ def request( name, rollno, PR_user,publickey_ca,PU_server):
     
 
     # decrypt the msg
-    msg = RSA_decrypt_bytes(enc_msg.decode(), PR_user)
-    s1 = int.from_bytes(msg[0:4], byteorder='little')
-    s2 = int.from_bytes(msg[4:8], byteorder='little')
-    s3 = int.from_bytes(msg[8:12], byteorder='little')
-    s4 = int.from_bytes(msg[12:16], byteorder='little')
-
-    print("size of PDF1:", s1)
-    print("size of PDF2:", s2)
-    print("size of encryptedhash1:", s3)
-    print("size of encryptedhash2:", s4)
-    print("\n\n")
+    msg4 = RSA_decrypt_bytes(enc_msg.decode(), PR_user)
     
-    PDF1 = msg[16:16+s1]
-    PDF2 = msg[16+s1:16+s1+s2]
-    PDFs = PDF1+PDF2
-    encryptedhash1 = msg[16+s1+s2:16+s1+s2+s3]
-    encryptedhash2 = msg[16+s1+s2+s3:16+s1+s2+s3+s4]
-
-    curtime = msg[16+s1+s2+s3+s4:].decode()
-
-    print("TIME: ",curtime)
-
+    
     # request certificate of Director from CA
     Cert_dir = request_ca("Director")
     PU_dir = getkey_from_certificate(Cert_dir)
     print("\n\n")
 
+    
     # authenticate Director
-    hash1 = hashlib.sha256(PDFs).hexdigest()
-    print("received hash1:", hash1)
-    print("received encryptedhash1:", encryptedhash1.decode())
+    s8 = int.from_bytes(msg4[-4:], byteorder='little')
+    encryptedhash1 = msg4[-4-s8:-4]
+    print(f"Director size of encryptedhash: {s8}")
+    msg3 = msg4[:(-4-s8)]
+    s6 = int.from_bytes(msg3[-8:-4], byteorder='little')
+    s7 = int.from_bytes(msg3[-4:], byteorder='little')
+    print("size of Director's name:", s6)
+    print("size of time_str:", s7)
+    hash1 = hashlib.sha256(msg3).hexdigest()
+    print("Director computed hash:", hash1)
+    print("Director received encryptedhash:", encryptedhash1.decode())
+    
     found_hash1 = RSA_decrypt_string(encryptedhash1.decode(), PU_dir)
+    print("found_hash1")
+    print(found_hash1)
     print("Digital signature of Director matched ", hash1 == found_hash1)
+    time_str = msg3[-8-s7:-8].decode()
+    print(f"Director time of signing:", time_str)
     print("\n\n")
+
 
     # request certificate of Registrar from CA
     Cert_reg = request_ca("Registrar")
@@ -111,12 +108,39 @@ def request( name, rollno, PR_user,publickey_ca,PU_server):
     print("\n\n")
 
     # authenticate Registrar
-    hash2 = hashlib.sha256(PDFs).hexdigest()
-    print("received hash2:", hash2)
-    print("received encryptedhash2:", encryptedhash2.decode())
+    msg2 = msg3[:(-8-s6-s7)]
+    s5 = int.from_bytes(msg2[-4:], byteorder='little')
+    encryptedhash2 = msg2[-4-s5:-4]
+    print(f"Registrar size of encryptedhash: {s5}")
+    msg1 = msg2[:(-4-s5)]
+    s3 = int.from_bytes(msg1[-8:-4], byteorder='little')
+    s4 = int.from_bytes(msg1[-4:], byteorder='little')
+    print("size of Registrar's name:", s3)
+    print("size of time_str:", s4)
+    hash2 = hashlib.sha256(msg1).hexdigest()
+    print("Registrar computed hash:", hash2)
+    print("Registrar received encryptedhash:", encryptedhash2.decode())
     found_hash2 = RSA_decrypt_string(encryptedhash2.decode(), PU_reg)
+    print("found_hash2")
+    print(found_hash2)
     print("Digital signature of Registrar matched ", hash2 == found_hash2)
+    s3 = int.from_bytes(msg1[-8:-4], byteorder='little')
+    s4 = int.from_bytes(msg1[-4:], byteorder='little') 
+    time_str = msg1[-8-s4:-8].decode()
+    print(f"Registrar time of signing:", time_str)    
     print("\n\n")
+    
+    msg0 = msg1[:-8-s3-s4]
+    s1 = int.from_bytes(msg0[-8:-4], byteorder='little')
+    s2 = int.from_bytes(msg0[-4:], byteorder='little')
+
+    print("size of PDF1:", s1)
+    print("size of PDF2:", s2)
+    print("\n\n")
+    
+    
+    PDF1 = msg0[:s1]
+    PDF2 = msg0[s1:s1+s2]
 
 
     # save the PDFs 

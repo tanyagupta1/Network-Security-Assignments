@@ -9,6 +9,43 @@ import ntplib
 from datetime import datetime
 from time import ctime
 
+class entity:
+    def __init__(self, name, PR):
+        self.name = name
+        self.PR = PR
+
+     
+    def add_sign(self, msg0):
+        time_str = gettime()
+        s3 = len(self.name.encode())
+        s4 = len(time_str.encode())
+        print("size of " + self.name + "'s name:", s3)
+        print("size of time_str:", s4)
+        print(f"{self.name} time of signing:", time_str)
+        print("\n\n")
+
+        msg1 = msg0 + self.name.encode() + time_str.encode() + s3.to_bytes(4,'little') + s4.to_bytes(4,'little')
+        return msg1
+
+    def add_hash(self, msg1):
+        # hash the doc and encrypt hash using PR of entity
+        hash = hashlib.sha256(msg1).hexdigest()
+        print(f"{self.name} sent hash: {hash}")
+        encryptedhash = RSA_encrypt_string(hash, self.PR).encode()
+        print(f"{self.name} sent encryptedhash: {encryptedhash}")
+        
+        s5 = len(encryptedhash)
+        print(f"{self.name} size of encryptedhash: {s5}")
+        print("\n\n")
+        msg2 = msg1 + encryptedhash + s5.to_bytes(4,'little')
+        return msg2
+
+def gettime():
+    ntpc=ntplib.NTPClient() 
+    curtime = ntpc.request('uk.pool.ntp.org').tx_time
+    
+    time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(curtime))
+    return time_str
 
 def request_ca(id):
     client_socket = socket.socket()
@@ -84,10 +121,7 @@ def handle_client(connection,server_pk):
     PU_client = getkey_from_certificate(Cert_client)
 
     # put date and time
-    ntpc=ntplib.NTPClient() 
-    curtime = ntpc.request('uk.pool.ntp.org').tx_time
-    
-    time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(curtime))
+    time_str = gettime()
 
     # obtain the PDFs & add watermark to each
     degree , grade = DB[(name,rollno)]
@@ -101,36 +135,24 @@ def handle_client(connection,server_pk):
 
     # concatenate the two PDFs
     PDFs = PDF1 + PDF2
+    s1 = len(PDF1)
+    s2 = len(PDF2)
+    print("size of PDF1:", s1)
+    print("size of PDF2:", s2)
 
-    # hash the doc and encrypt hash using PR of Registrar
-    hash1 = hashlib.sha256(PDFs).hexdigest()
-    print("sent hash1:", hash1)
-    encryptedhash1 = RSA_encrypt_string(hash1, (7, 1517)).encode()
-    print("sent encryptedhash1:", encryptedhash1.decode())
-    print("\n\n")
-
-
-    # hash the doc and encrypt hash using PR of Director
-    hash2 = hashlib.sha256(PDFs).hexdigest()
-    print("sent hash2:", hash2)
-    encryptedhash2 = RSA_encrypt_string(hash2, (5, 2021)).encode()
-    print("sent encryptedhash2:", encryptedhash2.decode())
-    print("\n\n")
-
-
-    # Attach the 2 hashes to the PDFs
-    # first 4 fields will be 4 byte each
-    print("size of PDF1:", len(PDF1))
-    print("size of PDF2:", len(PDF2))
-    print("size of encryptedhash1:", len(encryptedhash1))
-    print("size of encryptedhash2:", len(encryptedhash2))
-    print("\n\n")
-    msg = len(PDF1).to_bytes(4,'little')+len(PDF2).to_bytes(4,'little') + len(encryptedhash1).to_bytes(4,'little') + len(encryptedhash2).to_bytes(4,'little') + PDFs + encryptedhash1 + encryptedhash2 +time_str.encode()
+    msg0 = PDFs+s1.to_bytes(4,'little')+s2.to_bytes(4,'little')
+    registrar = entity("Registrar", (5, 2021))
+    msg1 = registrar.add_sign(msg0)
+    msg2 = registrar.add_hash(msg1)
     
 
+    director = entity("Director", (7, 1517))
+    msg3 = director.add_sign(msg2)
+    msg4 = director.add_hash(msg3)
+    
     # encrypt for confidentiality
     print("PU_client:",  PU_client)
-    enc_msg = RSA_encrypt_bytes(msg, PU_client).encode()
+    enc_msg = RSA_encrypt_bytes(msg4, PU_client).encode()
     
 
     # send the final message to client
